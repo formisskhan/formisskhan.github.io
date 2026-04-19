@@ -2,138 +2,364 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Movie night 🎥</title>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>For You</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
   <style>
-    * { box-sizing: border-box; font-family: 'Quicksand', sans-serif; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #fdf8f4;
+      --card-bg: #fffcf9;
+      --ink: #2c2320;
+      --ink-light: #6b5c57;
+      --accent: #c9786a;
+      --accent-soft: #f0ddd9;
+      --border: #e8dcd7;
+      --shadow: rgba(100, 60, 50, 0.10);
+    }
+
     body {
-      margin: 0;
-      height: 100vh;
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      color: var(--ink);
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    /* Subtle background texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 20%, #f5e8e4 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, #ede4f0 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .scene {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+      width: 100%;
+      max-width: 680px;
+    }
+
+    /* Top label */
+    .label {
+      font-size: 0.78rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-family: 'Lato', sans-serif;
+      font-weight: 300;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    /* Card wrapper */
+    .card-wrap {
+      width: 100%;
+      position: relative;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 56px 60px;
+      box-shadow:
+        0 2px 8px var(--shadow),
+        0 20px 60px rgba(100,60,50,0.07);
+      position: relative;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.4s;
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Decorative corner marks */
+    .card::before, .card::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-color: var(--accent-soft);
+      border-style: solid;
+    }
+    .card::before { top: 18px; left: 18px; border-width: 1px 0 0 1px; }
+    .card::after  { bottom: 18px; right: 18px; border-width: 0 1px 1px 0; }
+
+    /* Card content area */
+    .card-inner {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-text {
+      font-size: 1.18rem;
+      line-height: 2;
+      font-weight: 300;
+      color: var(--ink);
+      white-space: pre-wrap;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .card-text.exit-left  { opacity: 0; transform: translateX(-28px); }
+    .card-text.exit-right { opacity: 0; transform: translateX(28px); }
+    .card-text.enter-left  { opacity: 0; transform: translateX(28px); }
+    .card-text.enter-right { opacity: 0; transform: translateX(-28px); }
+    .card-text.active { opacity: 1; transform: translateX(0); }
+
+    /* Card footer */
+    .card-footer {
+      margin-top: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-counter {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      color: var(--ink-light);
+      font-weight: 300;
+    }
+
+    .card-divider {
+      height: 1px;
+      flex: 1;
+      background: var(--border);
+      margin: 0 20px;
+    }
+
+    /* Navigation */
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.6s;
+    }
+
+    .nav-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--ink-light);
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #ffd6e7;
+      transition: all 0.22s ease;
+      box-shadow: 0 2px 8px var(--shadow);
     }
-    .card {
-      background: white;
-      width: 90%;
-      max-width: 500px;
-      height: 550px; /* Increased height for comfort */
-      border-radius: 24px;
-      padding: 24px;
-      text-align: center;
-      position: relative;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      overflow: hidden;
+
+    .nav-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: scale(1.06);
+      box-shadow: 0 4px 16px var(--shadow);
     }
-    h1 { margin-top: 10px; font-size: 1.8rem; color: #ff5c8a; }
-    #subtitle { margin-top: 10px; font-size: 1.2rem; color: #ff7aa2; min-height: 1.5em; }
-    .bears { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-    .bears img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; }
-    
-    .buttons {
-      margin-top: 30px;
-      position: relative;
-      height: 250px; /* Give the buttons room to "run" */
+
+    .nav-btn:disabled {
+      opacity: 0.28;
+      cursor: default;
     }
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 14px 28px;
-      font-size: 1.1rem;
+
+    .nav-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 1.5;
+    }
+
+    /* Dot indicators */
+    .dots {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: all 0.3s ease;
       cursor: pointer;
-      transition: transform 0.2s ease, background-color 0.3s ease;
-      position: absolute;
     }
-    #yesBtn {
-      background-color: #ff5c8a;
-      color: white;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 0; /* Starting position */
-      z-index: 10;
+
+    .dot.active {
+      background: var(--accent);
+      transform: scale(1.25);
     }
-    #noBtn {
-      background-color: #f2f2f2;
-      color: #444;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 70px; /* Starting position below Yes */
-      width: 110px;
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 560px) {
+      .card { padding: 36px 28px; }
+      .card-text { font-size: 1.06rem; line-height: 1.9; }
     }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <div id="content">
-        <h1>Movie night this Weekend? 🥺</h1>
-        <div id="subtitle">Click to find out...</div>
+<div class="scene">
 
-        <div class="bears">
-          <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExb3Y0Z2Q0cGVyZjB1OWM0cDhiN2VhNDJycXd4MGh2M3l1Z2Z3cWNsZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/IvoysZG4Zn5a4cWBZA/giphy.gif" alt="Solo" />
-          <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXhmdGhrcTlqbTVnOWszemxvbDFnbzhuamYzMDVkdXhoNmV5M3dqbyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/901mxGLGQN2PyCQpoc/giphy.gif" alt="Cat" />
-          <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExMDJkZ3l2ajQ0dWt1NGdxODNsdHg2NjNkM3ptemk3NTl3aGI3Zm41MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/10S42gVFmZJ4eA/giphy.gif" alt="Hero" />
-        </div>
+  <span class="label">A few words, just for you</span>
 
-        <div class="buttons" id="buttonArea">
-          <button id="yesBtn">Yes 😜</button>
-          <button id="noBtn">No 🙄</button>
-        </div>
+  <div class="card-wrap">
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-text active" id="cardText"></div>
+      </div>
+      <div class="card-footer">
+        <span class="card-counter" id="counter"></span>
+        <div class="card-divider"></div>
+      </div>
     </div>
   </div>
 
-  <script>
-    const noBtn = document.getElementById('noBtn');
-    const yesBtn = document.getElementById('yesBtn');
-    const subtitle = document.getElementById('subtitle');
-    const area = document.getElementById('buttonArea');
-    const card = document.querySelector('.card');
+  <div class="nav">
+    <button class="nav-btn" id="prevBtn" aria-label="Previous">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
 
-    const messages = [
-      'Are you sure? 😟',
-      'Pookie please 🧸',
-      'Whats wrong with you 😭',
-      'Bus bhi karo ab nakhray 😫',
-      'Maan jao na 🥹',
-      'You think this is gonna end? 😁',
-      'Do you even have a heart? 😞',
-      'I hate you 😡',
-      'Haha I was just kidding 😅',
-      'Okay now you are pushing it 😒',
-      'You are breaking my heart...'
-    ];
+    <div class="dots" id="dots"></div>
 
-    let messageIndex = 0;
-    let yesScale = 1;
+    <button class="nav-btn" id="nextBtn" aria-label="Next">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
 
-    noBtn.addEventListener('click', () => {
-      // 1. Update Message
-      subtitle.textContent = messages[messageIndex];
-      messageIndex = (messageIndex + 1) % messages.length;
+</div>
 
-      // 2. Move No Button (constrained to the buttonArea)
-      const maxX = area.clientWidth - noBtn.offsetWidth;
-      const maxY = area.clientHeight - noBtn.offsetHeight;
+<script>
+  // ── ✏️  YOUR MESSAGES – edit these freely ────────────────────────────────
+  const messages = [
+    `I've been turning these words over in my mind for a long time now, never quite finding the right moment or the courage to say them out loud.
 
-      const randomX = Math.floor(Math.random() * maxX);
-      const randomY = Math.floor(Math.random() * maxY);
+But some things deserve to be said, even when it's hard — especially when it's hard.
 
-      noBtn.style.left = randomX + 'px';
-      noBtn.style.top = randomY + 'px';
-      noBtn.style.transform = 'none'; // Remove the initial centering transform
+So here I am, giving these feelings the space they've always deserved, hoping you'll read every word the way it was meant: with all the warmth and sincerity I have.`,
+
+    `There's something about you that changes the quality of a room the moment you walk into it.
+
+I've noticed it every single time — the way the air feels a little lighter, the way conversations become more interesting, the way I find myself wanting to stay just a little longer than I planned.
+
+You probably don't even realize you do it. That's one of my favorite things about you.`,
+
+    `I've thought about what I'd say if I ever got the chance, and I always imagined something perfectly composed — wise, maybe a little poetic.
+
+Instead I just keep coming back to the simplest truth: being around you feels like the best version of whatever day it is.
+
+That's not nothing. That's actually everything.`,
+
+    `You've made me laugh harder than I expected, think more carefully than I'm used to, and feel more seen than I knew I needed.
+
+Those aren't small things. Those are the kinds of things that stay with a person.
+
+They've stayed with me.`,
+
+    `I don't know exactly what comes next, or if you feel even a fraction of what I'm trying to say here.
+
+But I know I'd regret saying nothing far more than I'd regret saying too much.
+
+So if these pages reach you and you recognize yourself in them — know that it's all true, and it's all meant for you.
+
+With everything I've got,
+— me.`,
+  ];
+  // ─────────────────────────────────────────────────────────────────────────
+
+  let current = 0;
+  const textEl   = document.getElementById('cardText');
+  const counterEl = document.getElementById('counter');
+  const prevBtn  = document.getElementById('prevBtn');
+  const nextBtn  = document.getElementById('nextBtn');
+  const dotsEl   = document.getElementById('dots');
+
+  // Build dots
+  messages.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', `Go to card ${i + 1}`);
+    d.addEventListener('click', () => goTo(i, i > current ? 'left' : 'right'));
+    dotsEl.appendChild(d);
+  });
+
+  function updateUI() {
+    counterEl.textContent = `${current + 1} / ${messages.length}`;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === messages.length - 1;
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
     });
+  }
 
-    yesBtn.addEventListener('click', () => {
-      document.getElementById('content').innerHTML = `
-        <h1 style="margin-top:50px;">YAYYY 🥳🥳🥳🥳🥳</h1>
-        <p style="font-size:1.5rem; color:#ff5c8a;">Best decision ever! 🤩🤩🤩</p>
-        <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWp6dDJnNGpkN25haHRqZmJldGlkejg0dDkwbW01c2F2Y2U0bDVlMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l7wnM8ZJ9evqSPaWHk/giphy.gif" 
-             style="width:250px; border-radius:16px; margin-top:20px;" />
-      `;
-    });
-  </script>
+  function goTo(index, dir) {
+    if (index === current) return;
+    const exitClass  = dir === 'left'  ? 'exit-left'  : 'exit-right';
+    const enterClass = dir === 'left'  ? 'enter-left' : 'enter-right';
+
+    textEl.classList.remove('active');
+    textEl.classList.add(exitClass);
+
+    setTimeout(() => {
+      current = index;
+      textEl.textContent = messages[current];
+      textEl.classList.remove(exitClass);
+      textEl.classList.add(enterClass);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          textEl.classList.remove(enterClass);
+          textEl.classList.add('active');
+          updateUI();
+        });
+      });
+    }, 320);
+  }
+
+  prevBtn.addEventListener('click', () => {
+    if (current > 0) goTo(current - 1, 'right');
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (current < messages.length - 1) goTo(current + 1, 'left');
+  });
+
+  // Keyboard support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft'  && current > 0)                   goTo(current - 1, 'right');
+    if (e.key === 'ArrowRight' && current < messages.length - 1) goTo(current + 1, 'left');
+  });
+
+  // Init
+  textEl.textContent = messages[0];
+  updateUI();
+</script>
 </body>
 </html>
